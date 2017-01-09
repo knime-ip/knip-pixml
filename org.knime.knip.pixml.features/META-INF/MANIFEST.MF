@@ -10,4 +10,7 @@ Eclipse-BuddyPolicy: dependent
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.knime.base;bundle-version="3.2.2",
- org.knime.knip.base;bundle-version="1.5.3"
+ org.knime.knip.base;bundle-version="1.5.3",
+ org.knime.workbench.repository;bundle-version="3.2.1"
+Import-Package: net.imglib2.ops.operation,
+ net.imglib2.ops.operation.img.unary;version="0.7.0.201610261353"
