@@ -74,9 +74,14 @@ public class FeatureCalculator<T extends RealType<T>> {
     private static String[] availableFeatures =
         new String[]{Feature.GAUSSIAN_BLUR.toString(), "Hessian", "Difference_of_gaussians", "Mean", "Max", "Min"};
 
+    /**
+     * Enum containing all available features. Each feature has a string containing the displayable name.
+     *
+     * @author eike
+     */
     public enum Feature {
             GAUSSIAN_BLUR("Gaussian_blur"), HESSIAN("Hessian"), DIFFERENCE_OF_GAUSSIAN("Difference_of_gaussians"),
-            MEAN("Mean"), MAX("Max"), MIN("Min");
+            MEAN("Mean"), MAX("Max"), MIN("Min"), MEDIAN("Median"), VARIANCE("Variance");
 
         private final String name;
 
@@ -122,21 +127,41 @@ public class FeatureCalculator<T extends RealType<T>> {
         return availableFeatures;
     }
 
+    /**
+     * Enables selected features.
+     *
+     * @param features to be enabled
+     */
     public void setSelectedFeatures(final Feature[] features) {
         m_selectedFeatures = features;
     }
 
+    /**
+     * Sets the value of minSigma.
+     *
+     * @param sigma
+     */
     public void setMinSigma(final float sigma) {
         minSigma = sigma;
     }
 
+    /**
+     * Sets the value of maxSigma.
+     *
+     * @param sigma
+     */
     public void setMaxSigma(final float sigma) {
         maxSigma = sigma;
     }
 
+    /**
+     * Calculates all selected features on a given image.
+     *
+     * @return stack of features
+     */
     public RandomAccessibleInterval<T> compute() {
         ExecutorService exes = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        if(Thread.currentThread().isInterrupted()) {
+        if (Thread.currentThread().isInterrupted()) {
             return null;
         }
 
@@ -146,19 +171,29 @@ public class FeatureCalculator<T extends RealType<T>> {
 
         try {
 
-            for(Feature feature : m_selectedFeatures) {
-                switch(feature) {
-                    case GAUSSIAN_BLUR: break;
+            for (Feature feature : m_selectedFeatures) {
+                switch (feature) {
+                    case GAUSSIAN_BLUR:
+                        break;
                     case DIFFERENCE_OF_GAUSSIAN:
                         break;
                     case HESSIAN:
+                        futures.add(exes.submit(getHessian()));
                         break;
                     case MAX:
                         futures.add(exes.submit(getMax()));
                         break;
                     case MEAN:
+                        futures.add(exes.submit(getMean()));
+                        break;
+                    case MEDIAN:
+                        futures.add(exes.submit(getMedian()));
                         break;
                     case MIN:
+                        futures.add(exes.submit(getMin()));
+                        break;
+                    case VARIANCE:
+                        futures.add(exes.submit(getVariance()));
                         break;
                     default:
                         break;
@@ -166,7 +201,7 @@ public class FeatureCalculator<T extends RealType<T>> {
 
             }
 
-            for(Future<RandomAccessibleInterval<T>> f : futures) {
+            for (Future<RandomAccessibleInterval<T>> f : futures) {
                 RandomAccessibleInterval<T> result = f.get();
                 stack.add(result);
             }
@@ -179,20 +214,90 @@ public class FeatureCalculator<T extends RealType<T>> {
         }
         return Views.stack(stack);
 
-
     }
 
-    private Callable<RandomAccessibleInterval<T>> getMax() {
-        if(Thread.currentThread().isInterrupted()) {
+    private Callable<RandomAccessibleInterval<T>> getHessian() {
+        if (Thread.currentThread().isInterrupted()) {
             return null;
         }
         return new Callable<RandomAccessibleInterval<T>>() {
 
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
-                return  KNIPGateway.ops().pixelfeature().max(img, (int)minSigma);
-//                return null;
+                return KNIPGateway.ops().pixelfeature().hessian(img, minSigma, maxSigma);
+                //                return null;
             }
         };
     }
+
+    private Callable<RandomAccessibleInterval<T>> getMax() {
+        if (Thread.currentThread().isInterrupted()) {
+            return null;
+        }
+        return new Callable<RandomAccessibleInterval<T>>() {
+
+            @Override
+            public RandomAccessibleInterval<T> call() throws Exception {
+                return KNIPGateway.ops().pixelfeature().max(img, (int)minSigma);
+                //                return null;
+            }
+        };
+    }
+
+    private Callable<RandomAccessibleInterval<T>> getMean() {
+        if (Thread.currentThread().isInterrupted()) {
+            return null;
+        }
+        return new Callable<RandomAccessibleInterval<T>>() {
+
+            @Override
+            public RandomAccessibleInterval<T> call() throws Exception {
+                return KNIPGateway.ops().pixelfeature().mean(img, (int)minSigma);
+                //                return null;
+            }
+        };
+    }
+
+    private Callable<RandomAccessibleInterval<T>> getMedian() {
+        if (Thread.currentThread().isInterrupted()) {
+            return null;
+        }
+        return new Callable<RandomAccessibleInterval<T>>() {
+
+            @Override
+            public RandomAccessibleInterval<T> call() throws Exception {
+                return KNIPGateway.ops().pixelfeature().median(img, (int)minSigma);
+                //                return null;
+            }
+        };
+    }
+
+    private Callable<RandomAccessibleInterval<T>> getMin() {
+        if (Thread.currentThread().isInterrupted()) {
+            return null;
+        }
+        return new Callable<RandomAccessibleInterval<T>>() {
+
+            @Override
+            public RandomAccessibleInterval<T> call() throws Exception {
+                return KNIPGateway.ops().pixelfeature().min(img, (int)minSigma);
+                //                return null;
+            }
+        };
+    }
+
+    private Callable<RandomAccessibleInterval<T>> getVariance() {
+        if (Thread.currentThread().isInterrupted()) {
+            return null;
+        }
+        return new Callable<RandomAccessibleInterval<T>>() {
+
+            @Override
+            public RandomAccessibleInterval<T> call() throws Exception {
+                return KNIPGateway.ops().pixelfeature().variance(img, (int)minSigma);
+                //                return null;
+            }
+        };
+    }
+
 }

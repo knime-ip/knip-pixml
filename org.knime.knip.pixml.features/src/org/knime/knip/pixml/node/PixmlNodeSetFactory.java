@@ -142,23 +142,6 @@ public class PixmlNodeSetFactory implements NodeSetFactory {
     @Override
     public Collection<String> getNodeFactoryIds() {
         m_nodeFactories.put(OpsPixFeaturesNodeFactory.class.getCanonicalName(), "/community/knip/pixml");
-//        m_nodeFactories.put(
-//                FijiTrainSegFeaturesNodeFactory.class.getCanonicalName(),
-//                "/community/knip/suise");
-//        m_nodeFactories.put(PixClassModelNodeFactory.class.getCanonicalName(),
-//                "/community/knip/suise");
-//        m_nodeFactories.put(PixClassApplyNodeFactory.class.getCanonicalName(),
-//                "/community/knip/suise");
-//        m_nodeFactories.put(BoundaryModelNodeFactory.class.getCanonicalName(),
-//                "/community/knip/suise");
-//        m_nodeFactories.put(
-//                AngleDepPixFeat2DNodeFactory.class.getCanonicalName(),
-//                "/community/knip/suise");
-        // m_nodeFactories.put(
-        // LabelingCompareNodeFactory.class.getCanonicalName(),
-        // "/community/knip/suise");
-//        m_nodeFactories.put(LevelCCANodeFactory.class.getCanonicalName(),
-//                "/community/knip/suise");
 
         return m_nodeFactories.keySet();
     }
