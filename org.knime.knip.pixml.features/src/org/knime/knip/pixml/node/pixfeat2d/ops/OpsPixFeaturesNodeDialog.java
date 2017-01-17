@@ -48,6 +48,7 @@
  */
 package org.knime.knip.pixml.node.pixfeat2d.ops;
 
+import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringListSelection;
@@ -70,20 +71,20 @@ public class OpsPixFeaturesNodeDialog<T extends RealType<T>> extends ValueToCell
         addDialogComponent("Options", "Features", new DialogComponentStringListSelection(
             OpsPixFeaturesNodeModel.createFeatureListModel(), "Features", FeatureCalculator.getAvailableFeatures()));
 
-        //        addDialogComponent("Options", "Features", new DialogComponentNumber(
-        //            FijiTrainSegFeaturesNodeModel.createMembraneThicknessModel(),
-        //            "Membrane thickness", 1));
-        //    addDialogComponent("Options", "Features", new DialogComponentNumber(
-        //            FijiTrainSegFeaturesNodeModel.createMembranePatchSizeModel(),
-        //            "Membrane patch size", 1));
+                addDialogComponent("Options", "Features", new DialogComponentNumber(
+                    OpsPixFeaturesNodeModel.createMembraneThicknessModel(),
+                    "Membrane thickness", 1));
+            addDialogComponent("Options", "Features", new DialogComponentNumber(
+                    OpsPixFeaturesNodeModel.createMembranePatchSizeModel(),
+                    "Membrane patch size", 1));
         addDialogComponent("Options", "Features",
             new DialogComponentNumber(OpsPixFeaturesNodeModel.createMinSigmaModel(), "Minimum sigma", 1));
         addDialogComponent("Options", "Features",
             new DialogComponentNumber(OpsPixFeaturesNodeModel.createMaxSigmaModel(), "Maximum sigma", 1));
 
-        //    addDialogComponent("Options", "Misc", new DialogComponentBoolean(
-        //            FijiTrainSegFeaturesNodeModel.createMultiThreadedModel(),
-        //            "Multi-threaded"));
+            addDialogComponent("Options", "Misc", new DialogComponentBoolean(
+                    OpsPixFeaturesNodeModel.createMultiThreadedModel(),
+                    "Multi-threaded"));
         addDialogComponent("Options", "Misc",
             new DialogComponentString(OpsPixFeaturesNodeModel.createFeatDimLabelModel(), "Feature dimension label"));
 

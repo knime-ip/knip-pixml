@@ -70,6 +70,7 @@ import net.imglib2.type.numeric.real.FloatType;
 /**
  *
  * @author eike
+ * @param <T> type
  */
 public class OpsPixFeaturesNodeModel<T extends RealType<T>> extends
 ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
@@ -173,29 +174,19 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
             throw new IllegalArgumentException("Only 2D images supported, yet!");
         }
 
-//        ImagePlus ip = new ImagePlus();
-//        new ImgToIJ(2).compute(img, ip);
 //        ExecutorService executor = getExecutorService();
 
         FeatureCalculator<T> opsFC = new FeatureCalculator<T>(img);
 
-//        FeatureStack ijFeatureStack = new FeatureStack(ip);
-
         // set parameters
         opsFC.setSelectedFeatures(enabledFeatures);
         // TODO set multithread, membrane patch, thickness
+        opsFC.setMembraneSize(m_smMembraneThickness.getIntValue());
+        opsFC.setMembranePatchSize(m_smMembranePatchSize.getIntValue());
+        opsFC.setMultithreaded(m_smMultiThreaded.getBooleanValue());
 
         opsFC.setMinSigma(m_smMinSigma.getIntValue());
         opsFC.setMaxSigma(m_smMaxSigma.getIntValue());
-
-        // caluclate all features
-//        if (m_smMultiThreaded.getBooleanValue()) {
-//            ijFeatureStack.updateFeaturesMT();
-//        } else {
-//            ijFeatureStack.updateFeaturesST();
-//        }
-
-        // convert image stack to img
 
         RandomAccessibleInterval<T> out = opsFC.compute();
 //        Img<FloatType> res =
