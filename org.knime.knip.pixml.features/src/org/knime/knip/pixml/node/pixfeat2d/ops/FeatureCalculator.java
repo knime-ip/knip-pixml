@@ -51,10 +51,8 @@ package org.knime.knip.pixml.node.pixfeat2d.ops;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.knime.knip.core.KNIPGateway;
-import org.scijava.thread.ThreadService;
 
 import net.imagej.ImgPlus;
 import net.imglib2.RandomAccessibleInterval;
@@ -136,16 +134,17 @@ public class FeatureCalculator<T extends RealType<T>> {
 
     private boolean m_multithreaded = true;
 
-    //    private ExecutorService m_executor;
+    private ExecutorService m_executor;
 
     /**
      * constructor
      *
      * @param input image of which features are calculated
+     * @param exec executorservice that is resetted on cancelling the node
      */
-    public FeatureCalculator(final ImgPlus<T> input/*, final ExecutorService exec*/) {
+    public FeatureCalculator(final ImgPlus<T> input, final ExecutorService exec) {
         m_img = input;
-        // m_executor = exec;
+        m_executor = exec;
     }
 
     /**
@@ -154,13 +153,13 @@ public class FeatureCalculator<T extends RealType<T>> {
      * @return stack of features
      */
     public RandomAccessibleInterval<T> compute() {
-        int numThreads = (isMultithread()) ? Runtime.getRuntime().availableProcessors() : 1;
-        ExecutorService exes = Executors.newFixedThreadPool(numThreads);
+//        int numThreads = (isMultithread()) ? Runtime.getRuntime().availableProcessors() : 1;
+//        ExecutorService exes = Executors.newFixedThreadPool(numThreads);
         if (Thread.currentThread().isInterrupted()) {
             return null;
         }
 
-        ThreadService threadservice = KNIPGateway.threads();
+//        ThreadService threadservice = KNIPGateway.threads();
         List<RandomAccessibleInterval<T>> stack = new ArrayList<>();
 
         for (Feature feature : m_selectedFeatures) {

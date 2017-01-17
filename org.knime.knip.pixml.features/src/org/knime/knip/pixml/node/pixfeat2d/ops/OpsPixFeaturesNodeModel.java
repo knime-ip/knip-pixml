@@ -174,9 +174,7 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
             throw new IllegalArgumentException("Only 2D images supported, yet!");
         }
 
-//        ExecutorService executor = getExecutorService();
-
-        FeatureCalculator<T> opsFC = new FeatureCalculator<T>(img);
+        FeatureCalculator<T> opsFC = new FeatureCalculator<T>(img, getExecutorService());
 
         // set parameters
         opsFC.setSelectedFeatures(enabledFeatures);

@@ -11,17 +11,27 @@
 			Features offered by imgj-ops
 		</intro>
 		<tab name="Options">
-			<option name="Features">Select the features here to be calculated. One
-				entry in the list not necessarily adds exactly one additional plane
-				to the resulting feature image. Some might add more. A more detailed
-				description of the features and the parameters can be found at
+			<option name="Features">Select the features to be calculated. One feature
+				does not necessarily add exactly one additional plane. Some might
+				add more, also depending on the selection of parameters. A more
+				detailed description of the features and the parameters can be found
+				at
 				http://fiji.sc/Trainable_Weka_Segmentation#Training_features.
 			</option>
+			<option name="Membrane Size">Sets the size of the Membrane Projections Filter.
+			</option>
+			<option name="Membrane Thickness">Sets the thickness of the Membrane Projections
+				Filter
+			</option>
+			<option name="Sigmas">Sets the minimum and maximum of the Blur strength
+				for Gaussian related filters. Sets the minimal and maximal filter
+				size for other filters.</option>
 			<option name="Multi-threaded">If checked, the features will be calculated in a
-				multithreaded, i.e. parallel, manner.</option>
+				multithreaded, i.e. parallel, manner.
+			</option>
 			<option name="Feature dimension label">The label of the dimension to be added to the
 				input images. For further processing please make sure that the
-				dimenion label is available in the according dialogs by adding it in
+				dimension label is available in the according dialogs by adding it in
 				the preferences of the Image Processing Extension.
 			</option>
 		</tab>
