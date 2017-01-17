@@ -52,6 +52,7 @@ import java.util.List;
 
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
@@ -62,12 +63,7 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.pixml.node.pixfeat2d.ops.FeatureCalculator.Feature;
 
 import net.imagej.ImgPlus;
-import net.imagej.ImgPlusMetadata;
-import net.imagej.axis.Axes;
-import net.imagej.axis.CalibratedAxis;
-import net.imagej.axis.DefaultLinearAxis;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
 
@@ -87,6 +83,14 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
         return new SettingsModelStringArray("feature_list", def);
     }
 
+    final static SettingsModelInteger createMembraneThicknessModel() {
+        return new SettingsModelInteger("membrane_thickness", 1);
+    }
+
+    final static SettingsModelInteger createMembranePatchSizeModel() {
+        return new SettingsModelInteger("membrane_patch_size", 19);
+    }
+
     final static SettingsModelInteger createMinSigmaModel() {
         return new SettingsModelInteger("min_sigma", 1);
     }
@@ -95,19 +99,31 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
         return new SettingsModelInteger("max_sigma", 16);
     }
 
+    final static SettingsModelBoolean createMultiThreadedModel() {
+        return new SettingsModelBoolean("multi_threaded", true);
+    }
+
     final static SettingsModelString createFeatDimLabelModel() {
         return new SettingsModelString("feature_dim_label", "F");
     }
 
     private SettingsModelStringArray m_smFeatureList = createFeatureListModel();
 
+    private SettingsModelInteger m_smMembraneThickness =
+            createMembraneThicknessModel();
+
+    private SettingsModelInteger m_smMembranePatchSize =
+            createMembranePatchSizeModel();
+
     private SettingsModelInteger m_smMinSigma = createMinSigmaModel();
 
     private SettingsModelInteger m_smMaxSigma = createMaxSigmaModel();
 
+    private SettingsModelBoolean m_smMultiThreaded = createMultiThreadedModel();
+
     private SettingsModelString m_smFeatDimLabel = createFeatDimLabelModel();
 
-    private boolean[] m_enabledFeatures;
+//    private boolean[] m_enabledFeatures;
     private Feature[] enabledFeatures;
 
     private ImgPlusCellFactory m_imgCellFactory;
@@ -118,11 +134,11 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
     @Override
     protected void addSettingsModels(final List<SettingsModel> settingsModels) {
         settingsModels.add(m_smFeatureList);
-//        settingsModels.add(m_smMembraneThickness);
-//        settingsModels.add(m_smMembranePatchSize);
+        settingsModels.add(m_smMembraneThickness);
+        settingsModels.add(m_smMembranePatchSize);
         settingsModels.add(m_smMinSigma);
         settingsModels.add(m_smMaxSigma);
-//        settingsModels.add(m_smMultiThreaded);
+        settingsModels.add(m_smMultiThreaded);
         settingsModels.add(m_smFeatDimLabel);
 
     }
@@ -132,20 +148,15 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
      */
     @Override
     protected void prepareExecute(final ExecutionContext exec) {
-        m_enabledFeatures = new boolean[FeatureCalculator.getAvailableFeatures().length];
+//        m_enabledFeatures = new boolean[FeatureCalculator.getAvailableFeatures().length];
         String[] selected = m_smFeatureList.getStringArrayValue();
         enabledFeatures = new Feature[selected.length];
-//        int j = 0;
+
         for(int i = 0; i < selected.length; i++) {
-            enabledFeatures[i] = Feature.valueOf(selected[i]);
+//            enabledFeatures[i] = Feature.valueOf(selected[i]);
+            enabledFeatures[i] = Feature.fromString(selected[i]);
         }
-//        for (int i = 0; i < FeatureCalculator.getAvailableFeatures().length
-//                && j < selected.length; i++) {
-//            if (FeatureCalculator.getAvailableFeature(i).equals(selected[j])) {
-//                m_enabledFeatures[i] = true;
-//                j++;
-//            }
-//        }
+
         m_imgCellFactory = new ImgPlusCellFactory(exec);
 
     }
@@ -164,19 +175,16 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
 
 //        ImagePlus ip = new ImagePlus();
 //        new ImgToIJ(2).compute(img, ip);
+//        ExecutorService executor = getExecutorService();
 
         FeatureCalculator<T> opsFC = new FeatureCalculator<T>(img);
 
 //        FeatureStack ijFeatureStack = new FeatureStack(ip);
 
         // set parameters
-//        ijFeatureStack.setEnabledFeatures(m_enabledFeatures);
         opsFC.setSelectedFeatures(enabledFeatures);
-//        ijFeatureStack
-//                .setMembranePatchSize(m_smMembranePatchSize.getIntValue());
-//        ijFeatureStack.setMembraneSize(m_smMembraneThickness.getIntValue());
-//        ijFeatureStack.setMinimumSigma(m_smMinSigma.getIntValue());
-//        ijFeatureStack.setMaximumSigma(m_smMaxSigma.getIntValue());
+        // TODO set multithread, membrane patch, thickness
+
         opsFC.setMinSigma(m_smMinSigma.getIntValue());
         opsFC.setMaxSigma(m_smMaxSigma.getIntValue());
 
@@ -203,19 +211,20 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
 //            }
 //        }
 
-        CalibratedAxis[] axes =
-                new CalibratedAxis[]{
-                        new DefaultLinearAxis(Axes.X),
-                        new DefaultLinearAxis(Axes.Y),
-                        new DefaultLinearAxis(Axes.get(m_smFeatDimLabel
-                                .getStringValue()))};
-        ImgPlusMetadata metadata = cellValue.getMetadata();
-        for (int i = 0; i < axes.length; i++) {
-            metadata.setAxis(axes[i], i);
-        }
+//        CalibratedAxis[] axes =
+//                new CalibratedAxis[]{
+//                        new DefaultLinearAxis(Axes.X),
+//                        new DefaultLinearAxis(Axes.Y),
+//                        new DefaultLinearAxis(Axes.get(m_smFeatDimLabel
+//                                .getStringValue()))};
+//        ImgPlusMetadata metadata = cellValue.getMetadata();
+//        for (int i = 0; i < axes.length; i++) {
+//            metadata.setAxis(axes[i], i);
+//        }
 
-        return m_imgCellFactory
-                .createCell(new ImgPlus<FloatType>((Img<FloatType>)out, metadata));
+        return (ImgPlusCell<FloatType>)m_imgCellFactory.createCell((ImgPlus<T>)out);
+//        return m_imgCellFactory
+//                .createCell(new ImgPlus<FloatType>((Img<FloatType>)out, metadata));
     }
 
 }

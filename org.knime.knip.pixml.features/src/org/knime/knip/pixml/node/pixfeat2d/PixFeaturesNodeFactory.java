@@ -46,147 +46,147 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.pixml.node.pixfeat2d;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import net.imglib2.type.numeric.RealType;
-
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
-import org.knime.core.node.defaultnodesettings.DialogComponent;
-import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
-import org.knime.core.node.defaultnodesettings.DialogComponentLabel;
-import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
-import org.knime.core.node.defaultnodesettings.DialogComponentString;
-import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
-import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.knip.base.nodes.features.FeatureSetDialogComponentCollection;
-import org.knime.knip.base.nodes.view.TableCellViewNodeView;
-
-/**
- * 
- * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- */
-public abstract class PixFeaturesNodeFactory<T extends RealType<T>> extends
-        NodeFactory<PixFeaturesNodeModel<T>> {
-
-    /**
-     * @return
-     */
-    protected abstract PixFeatureSetProvider[] getPixFeatureSetProviders();
-
-    protected abstract int getPixFeatureDimensionality();
-
-    protected abstract int getMaxNumOrientations();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected int getNrNodeViews() {
-        return 1;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean hasDialog() {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected NodeDialogPane createNodeDialogPane() {
-        FeatureSetDialogComponentCollection featColl =
-                new FeatureSetDialogComponentCollection(
-                        PixFeaturesNodeModel.createActiveFeatureSetModel());
-
-        List<DialogComponent> diagComps = new ArrayList<DialogComponent>();
-
-        // feature dialog components
-        for (PixFeatureSetProvider<T> p : getPixFeatureSetProviders()) {
-            p.initAndAddDialogComponents(diagComps);
-            featColl.addFeatureSetDialogComponent(p.getFeatureSetId(),
-                    p.getFeatureSetName(),
-                    new DialogComponentLabel(p.getFeatureSetName()));
-            for (DialogComponent dc : diagComps) {
-                featColl.addFeatureSetDialogComponent(p.getFeatureSetId(),
-                        p.getFeatureSetName(), dc);
-            }
-            diagComps.clear();
-        }
-
-        // dialog components for feature selection
-        featColl.addDialogComponent(
-                "Column Selection",
-                "Creation Mode",
-                new DialogComponentStringSelection(ValueToCellNodeModel
-                        .createColCreationModeModel(), "Column Creation Mode",
-                        ValueToCellNodeModel.COL_CREATION_MODES));
-        featColl.addDialogComponent(
-                "Column Selection",
-                "Column suffix",
-                new DialogComponentString(ValueToCellNodeModel
-                        .createColSuffixNodeModel(), "Column suffix"));
-
-        featColl.addDialogComponent(
-                "Column Selection",
-                "",
-                new DialogComponentColumnFilter(ValueToCellNodeModel
-                        .createColumnSelectionModel(), 0, false,
-                        ImgPlusValue.class));
-
-        SettingsModelIntegerBounded maxNumOrientations =
-                PixFeaturesNodeModel
-                        .createNumOrientationsModel(getMaxNumOrientations());
-        SettingsModelString orientationDimLabel =
-                PixFeaturesNodeModel.createOrientationDimLabelModel();
-        maxNumOrientations.setIntValue(getMaxNumOrientations());
-        if (maxNumOrientations.getIntValue() == 1) {
-            maxNumOrientations.setEnabled(false);
-            orientationDimLabel.setEnabled(false);
-        }
-        featColl.addDialogComponent("Additional settings", "",
-                new DialogComponentNumber(maxNumOrientations,
-                        "Number of orientations", 1));
-        featColl.addDialogComponent("Additional settings", "",
-                new DialogComponentString(orientationDimLabel,
-                        "Orientation dimension label"));
-        featColl.addDialogComponent(
-                "Additional settings",
-                "",
-                new DialogComponentString(PixFeaturesNodeModel
-                        .createFeatureDimLabelModel(),
-                        "Feature dimension label"));
-
-        return featColl.getDialog();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public PixFeaturesNodeModel<T> createNodeModel() {
-        return new PixFeaturesNodeModel<T>(getPixFeatureSetProviders(),
-                getPixFeatureDimensionality(), getMaxNumOrientations());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<PixFeaturesNodeModel<T>> createNodeView(int viewIndex,
-            PixFeaturesNodeModel<T> nodeModel) {
-        return new TableCellViewNodeView<PixFeaturesNodeModel<T>>(nodeModel);
-    }
-
-}
+//package org.knime.knip.pixml.node.pixfeat2d;
+//
+//import java.util.ArrayList;
+//import java.util.List;
+//
+//import net.imglib2.type.numeric.RealType;
+//
+//import org.knime.core.node.NodeDialogPane;
+//import org.knime.core.node.NodeFactory;
+//import org.knime.core.node.NodeView;
+//import org.knime.core.node.defaultnodesettings.DialogComponent;
+//import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
+//import org.knime.core.node.defaultnodesettings.DialogComponentLabel;
+//import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
+//import org.knime.core.node.defaultnodesettings.DialogComponentString;
+//import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+//import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
+//import org.knime.core.node.defaultnodesettings.SettingsModelString;
+//import org.knime.knip.base.data.img.ImgPlusValue;
+//import org.knime.knip.base.node.ValueToCellNodeModel;
+//import org.knime.knip.base.nodes.features.FeatureSetDialogComponentCollection;
+//import org.knime.knip.base.nodes.view.TableCellViewNodeView;
+//
+///**
+// *
+// * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
+// */
+//public abstract class PixFeaturesNodeFactory<T extends RealType<T>> extends
+//        NodeFactory<PixFeaturesNodeModel<T>> {
+//
+//    /**
+//     * @return
+//     */
+//    protected abstract PixFeatureSetProvider[] getPixFeatureSetProviders();
+//
+//    protected abstract int getPixFeatureDimensionality();
+//
+//    protected abstract int getMaxNumOrientations();
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    protected int getNrNodeViews() {
+//        return 1;
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    protected boolean hasDialog() {
+//        return true;
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    protected NodeDialogPane createNodeDialogPane() {
+//        FeatureSetDialogComponentCollection featColl =
+//                new FeatureSetDialogComponentCollection(
+//                        PixFeaturesNodeModel.createActiveFeatureSetModel());
+//
+//        List<DialogComponent> diagComps = new ArrayList<DialogComponent>();
+//
+//        // feature dialog components
+//        for (PixFeatureSetProvider<T> p : getPixFeatureSetProviders()) {
+//            p.initAndAddDialogComponents(diagComps);
+//            featColl.addFeatureSetDialogComponent(p.getFeatureSetId(),
+//                    p.getFeatureSetName(),
+//                    new DialogComponentLabel(p.getFeatureSetName()));
+//            for (DialogComponent dc : diagComps) {
+//                featColl.addFeatureSetDialogComponent(p.getFeatureSetId(),
+//                        p.getFeatureSetName(), dc);
+//            }
+//            diagComps.clear();
+//        }
+//
+//        // dialog components for feature selection
+//        featColl.addDialogComponent(
+//                "Column Selection",
+//                "Creation Mode",
+//                new DialogComponentStringSelection(ValueToCellNodeModel
+//                        .createColCreationModeModel(), "Column Creation Mode",
+//                        ValueToCellNodeModel.COL_CREATION_MODES));
+//        featColl.addDialogComponent(
+//                "Column Selection",
+//                "Column suffix",
+//                new DialogComponentString(ValueToCellNodeModel
+//                        .createColSuffixNodeModel(), "Column suffix"));
+//
+//        featColl.addDialogComponent(
+//                "Column Selection",
+//                "",
+//                new DialogComponentColumnFilter(ValueToCellNodeModel
+//                        .createColumnSelectionModel(), 0, false,
+//                        ImgPlusValue.class));
+//
+//        SettingsModelIntegerBounded maxNumOrientations =
+//                PixFeaturesNodeModel
+//                        .createNumOrientationsModel(getMaxNumOrientations());
+//        SettingsModelString orientationDimLabel =
+//                PixFeaturesNodeModel.createOrientationDimLabelModel();
+//        maxNumOrientations.setIntValue(getMaxNumOrientations());
+//        if (maxNumOrientations.getIntValue() == 1) {
+//            maxNumOrientations.setEnabled(false);
+//            orientationDimLabel.setEnabled(false);
+//        }
+//        featColl.addDialogComponent("Additional settings", "",
+//                new DialogComponentNumber(maxNumOrientations,
+//                        "Number of orientations", 1));
+//        featColl.addDialogComponent("Additional settings", "",
+//                new DialogComponentString(orientationDimLabel,
+//                        "Orientation dimension label"));
+//        featColl.addDialogComponent(
+//                "Additional settings",
+//                "",
+//                new DialogComponentString(PixFeaturesNodeModel
+//                        .createFeatureDimLabelModel(),
+//                        "Feature dimension label"));
+//
+//        return featColl.getDialog();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public PixFeaturesNodeModel<T> createNodeModel() {
+//        return new PixFeaturesNodeModel<T>(getPixFeatureSetProviders(),
+//                getPixFeatureDimensionality(), getMaxNumOrientations());
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public NodeView<PixFeaturesNodeModel<T>> createNodeView(int viewIndex,
+//            PixFeaturesNodeModel<T> nodeModel) {
+//        return new TableCellViewNodeView<PixFeaturesNodeModel<T>>(nodeModel);
+//    }
+//
+//}

@@ -52,10 +52,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.knime.knip.core.KNIPGateway;
-import org.scijava.plugin.Parameter;
-
-import net.imagej.ops.OpService;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 
@@ -76,9 +72,6 @@ public class PixFeatureFactory<T extends RealType<T>> {
     private final Collection<PixFeatureSet<T>> m_fsets;
 
     private int m_numFeatures = -1;
-
-    @Parameter
-    private OpService ops;
 
     /**
      * Creates a new feature factory
@@ -178,12 +171,12 @@ public class PixFeatureFactory<T extends RealType<T>> {
      *         the orientations (if numOrientations > 1)
      */
 
-    public Img<T> makeFeatureImage(final Img<T> sourceImg) {
+//    public Img<T> makeFeatureImage(final Img<T> sourceImg) {
 
 //        RandomAccessibleInterval<T> features = ops.pixelfeature().min(sourceImg, 3);
-        return (Img<T>)KNIPGateway.ops().pixelfeature().max(sourceImg, 3);
+//        return (Img<T>)KNIPGateway.ops().pixelfeature().max(sourceImg, 3);
 //        return (Img<T>)features;
-    }
+//    }
 //    public Img<FloatType> makeFeatureImage(final Img<T> srcImg,
 //            final int featCalcDimionality, final int numOrientations) {
 //

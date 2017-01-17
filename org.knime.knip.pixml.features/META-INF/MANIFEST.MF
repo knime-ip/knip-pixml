@@ -11,6 +11,14 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.knime.base;bundle-version="3.2.2",
  org.knime.knip.base;bundle-version="1.5.3",
- org.knime.workbench.repository;bundle-version="3.2.1"
-Import-Package: net.imglib2.ops.operation,
- net.imglib2.ops.operation.img.unary;version="0.7.0.201610261353"
+ org.knime.workbench.repository;bundle-version="3.2.1",
+ imglib2;bundle-version="3.2.0",
+ imagej-common;bundle-version="0.24.1",
+ org.knime.knip.core;bundle-version="1.5.4",
+ imagej-ops,
+ org.knime.scijava.core;bundle-version="0.5.0",
+ scijava-common;bundle-version="2.60.2"
+Export-Package: org.knime.knip.pixml.data.feat,
+ org.knime.knip.pixml.node,
+ org.knime.knip.pixml.node.pixfeat2d,
+ org.knime.knip.pixml.node.pixfeat2d.ops

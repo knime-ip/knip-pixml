@@ -2,20 +2,19 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
+         point="org.knime.workbench.repository.nodesets">
+      <nodeset
+            default-category-icon="icons/default.png"
+            factory-class="org.knime.knip.pixml.node.PixmlNodeSetFactory">
+      </nodeset>
+   </extension>
+   <extension
          point="org.knime.workbench.repository.categories">
       <category
             level-id="pixml"
             name="PixML"
             path="/community/knip">
       </category>
-   </extension>
-   <extension
-         point="org.knime.workbench.repository.nodesets">
-      <nodeset
-            default-category-icon="icons/default.png"
-            factory-class="org.knime.knip.pixml.node.PixmlNodeSetFactory"
-            id="org.knime.knip.pixml.node.PixmlNodeSetFactory">
-      </nodeset>
    </extension>
 
 </plugin>
