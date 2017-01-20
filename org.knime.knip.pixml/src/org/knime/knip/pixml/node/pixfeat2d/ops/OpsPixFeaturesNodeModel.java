@@ -63,16 +63,17 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.pixml.node.pixfeat2d.ops.FeatureCalculator.Feature;
 
+import ij.ImagePlus;
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
 import net.imagej.axis.Axes;
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.DefaultLinearAxis;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccess;
+import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.ImagePlusAdapter;
 import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
 
@@ -81,8 +82,8 @@ import net.imglib2.type.numeric.real.FloatType;
  * @author eike
  * @param <T> type
  */
-public class OpsPixFeaturesNodeModel<T extends RealType<T>> extends
-ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
+public class OpsPixFeaturesNodeModel<T extends RealType<T>>
+        extends ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
 
     final static SettingsModelStringArray createFeatureListModel() {
         // default selection
@@ -119,11 +120,9 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
 
     private SettingsModelStringArray m_smFeatureList = createFeatureListModel();
 
-    private SettingsModelInteger m_smMembraneThickness =
-            createMembraneThicknessModel();
+    private SettingsModelInteger m_smMembraneThickness = createMembraneThicknessModel();
 
-    private SettingsModelInteger m_smMembranePatchSize =
-            createMembranePatchSizeModel();
+    private SettingsModelInteger m_smMembranePatchSize = createMembranePatchSizeModel();
 
     private SettingsModelInteger m_smMinSigma = createMinSigmaModel();
 
@@ -133,7 +132,7 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
 
     private SettingsModelString m_smFeatDimLabel = createFeatDimLabelModel();
 
-//    private boolean[] m_enabledFeatures;
+    //    private boolean[] m_enabledFeatures;
     private Feature[] enabledFeatures;
 
     private ImgPlusCellFactory m_imgCellFactory;
@@ -158,12 +157,12 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
      */
     @Override
     protected void prepareExecute(final ExecutionContext exec) {
-//        m_enabledFeatures = new boolean[FeatureCalculator.getAvailableFeatures().length];
+        //        m_enabledFeatures = new boolean[FeatureCalculator.getAvailableFeatures().length];
         String[] selected = m_smFeatureList.getStringArrayValue();
         enabledFeatures = new Feature[selected.length];
 
-        for(int i = 0; i < selected.length; i++) {
-//            enabledFeatures[i] = Feature.valueOf(selected[i]);
+        for (int i = 0; i < selected.length; i++) {
+            //            enabledFeatures[i] = Feature.valueOf(selected[i]);
             enabledFeatures[i] = Feature.fromString(selected[i]);
         }
 
@@ -176,10 +175,10 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
      */
     @Override
     protected ImgPlusCell<FloatType> compute(final ImgPlusValue<T> cellValue) throws Exception {
-
-        KNIPGateway.ops().create(DummyOp.class);
+        OpService ops = KNIPGateway.ops();
 
         ImgPlus<T> img = cellValue.getImgPlus();
+        //        ops.pixelfeature().dummyThread();
 
         // create feature stack
         if (img.numDimensions() > 2) {
@@ -199,17 +198,67 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
         opsFC.setMaxSigma(m_smMaxSigma.getIntValue());
 
         RandomAccessibleInterval<T> out = opsFC.compute();
-        RandomAccess<T> outRA = out.randomAccess();
-        Img<FloatType> res =
-                new ArrayImgFactory<FloatType>().create(
-                        new long[]{img.dimension(0), img.dimension(1),
-                                out.dimension(2)}, new FloatType());
-        Cursor<FloatType> resCur = res.cursor();
-        while(resCur.hasNext()) {
-            resCur.next();
-            outRA.setPosition(resCur);
-            resCur.get().set(outRA.get().getRealFloat());
+//        System.out.println(out.dimension(0) + "|" + out.dimension(1) + "|" + out.dimension(2));
+//        Cursor<T> outCursor = Views.iterable(out).cursor();
+//        RandomAccess<T> outRA = out.randomAccess();
+//        ImageJFunctions.show(out, "out");
+//        Img<FloatType> res = new ArrayImgFactory<FloatType>()
+//                .create(new long[]{out.dimension(0), out.dimension(1), out.dimension(2)}, new FloatType());
+//        System.out.println(res.dimension(0) + "|" + res.dimension(1) + "|" + res.dimension(2));
+//        RandomAccess<FloatType> resultRA = res.randomAccess();
+//        Cursor<FloatType> resCur = res.cursor();
+
+        // TODO convert RandomAccessibleInterval<T> out into Img<FloatType> res
+        ImagePlus outImage = ImageJFunctions.wrap(out, "");
+        Img<FloatType> outImg = ImagePlusAdapter.wrap(outImage);
+
+
+
+
+        CalibratedAxis[] axes = new CalibratedAxis[]{new DefaultLinearAxis(Axes.X), new DefaultLinearAxis(Axes.Y),
+                new DefaultLinearAxis(Axes.get(m_smFeatDimLabel.getStringValue()))};
+        ImgPlusMetadata metadata = cellValue.getMetadata();
+        for (int i = 0; i < axes.length; i++) {
+            metadata.setAxis(axes[i], i);
         }
+
+        // TODO create output imgplus
+
+        return m_imgCellFactory.createCell(new ImgPlus<FloatType>( outImg, metadata));
+        //        return m_imgCellFactory
+        //                .createCell(new ImgPlus<FloatType>((Img<FloatType>)out, metadata));
+    }
+
+}
+//        for (int i = 0; i < out.dimension(2); i++) {
+//            // TODO slice result and copy values?
+//            IntervalView<T> test = Views.hyperSlice(Views.hyperSlice(out, 3, 0), 2, i);
+//            IntervalView<FloatType> resSlice = Views.hyperSlice(Views.hyperSlice(res, 3, 0), 2, i);
+//            RandomAccess<FloatType> resSliceRA = resSlice.randomAccess();
+//            Cursor<T> testCur = test.cursor();
+//            while(testCur.hasNext()) {
+//                testCur.next();
+//                long[] position = new long[3];
+//                testCur.localize(position);
+//                position[2] = i;
+//                resSliceRA.setPosition(testCur);
+//                resSliceRA.get().setReal(testCur.get().getRealFloat());
+////                outRA.setPosition(position);
+////                outRA.get().setReal(testCur.get().getRealFloat());
+//            }
+//        }
+
+//        ImageJFunctions.show(test, "test");
+//        while(outCursor.hasNext()) {
+//            outCursor.next();
+//            resultRA.setPosition(outCursor);
+//            resultRA.get().setReal(outCursor.get().getRealFloat());
+//        }
+//        while(resCur.hasNext()) {
+//            resCur.next();
+//            outRA.setPosition(resCur);
+//            resCur.get().set(outRA.get().getRealFloat());
+//        }
 //        for (int i = 0; i < out.dimension(2); i++) {
 //            for (int j = 0; j < img.size(); j++) {
 //                resCur.fwd();
@@ -219,23 +268,3 @@ ValueToCellNodeModel<ImgPlusValue<T>, ImgPlusCell<FloatType>> {
 ////                resCur.get().set(tmp.get(j));
 //            }
 //        }
-
-        CalibratedAxis[] axes =
-                new CalibratedAxis[]{
-                        new DefaultLinearAxis(Axes.X),
-                        new DefaultLinearAxis(Axes.Y),
-                        new DefaultLinearAxis(Axes.get(m_smFeatDimLabel
-                                .getStringValue()))};
-        ImgPlusMetadata metadata = cellValue.getMetadata();
-        for (int i = 0; i < axes.length; i++) {
-            metadata.setAxis(axes[i], i);
-        }
-
-        // TODO create output imgplus
-
-        return m_imgCellFactory.createCell(new ImgPlus<FloatType>(res,metadata));
-//        return m_imgCellFactory
-//                .createCell(new ImgPlus<FloatType>((Img<FloatType>)out, metadata));
-    }
-
-}

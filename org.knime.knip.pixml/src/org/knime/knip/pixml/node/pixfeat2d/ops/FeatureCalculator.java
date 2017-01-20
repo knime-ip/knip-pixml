@@ -70,12 +70,12 @@ import net.imglib2.view.Views;
  */
 public class FeatureCalculator<T extends RealType<T>> {
 
-    private static String[] s_availableFeatures =
-        new String[]{Feature.BILATERAL.getText(), Feature.DIFFERENCE_OF_GAUSSIAN.getText(),
-            Feature.GAUSSIAN_BLUR.getText(), Feature.GAUSSIAN_GRADIENT_MAGNITUDE.getText(), Feature.HESSIAN.getText(),
-            Feature.KUWAHARA.getText(), Feature.LAPLACIAN_OF_GAUSSIAN.getText(), Feature.MEMBRANE_PROJECTIONS.getText(),
-            Feature.MAX.getText(), Feature.MEAN.getText(), Feature.MEDIAN.getText(), Feature.MIN.getText(),
-            Feature.VARIANCE.getText(), Feature.STRUCTURE_TENSOR_EIGENVALUES.getText()};
+    private static String[] s_availableFeatures = new String[]{Feature.BILATERAL.getText(),
+            Feature.DIFFERENCE_OF_GAUSSIAN.getText(), Feature.GAUSSIAN_BLUR.getText(),
+            Feature.GAUSSIAN_GRADIENT_MAGNITUDE.getText(), Feature.HESSIAN.getText(), Feature.KUWAHARA.getText(),
+            Feature.LAPLACIAN_OF_GAUSSIAN.getText(), Feature.MEMBRANE_PROJECTIONS.getText(), Feature.MAX.getText(),
+            Feature.MEAN.getText(), Feature.MEDIAN.getText(), Feature.MIN.getText(), Feature.VARIANCE.getText(),
+            Feature.STRUCTURE_TENSOR_EIGENVALUES.getText()};
 
     /**
      * Enum containing all available features. Each feature has a string containing the displayable name.
@@ -84,11 +84,11 @@ public class FeatureCalculator<T extends RealType<T>> {
      */
     @SuppressWarnings("javadoc")
     public enum Feature {
-            BILATERAL("Bilateral"), DIFFERENCE_OF_GAUSSIAN("Difference of Gaussians"), GAUSSIAN_BLUR("Gaussian blur"),
-            GAUSSIAN_GRADIENT_MAGNITUDE("Gaussian Gradient Mangnitude"), HESSIAN("Hessian"), KUWAHARA("Kuwahra"),
-            LAPLACIAN_OF_GAUSSIAN("Laplacian of Gaussian"), MEMBRANE_PROJECTIONS("Membrane Projections"), MAX("Max"),
-            MEAN("Mean"), MEDIAN("Median"), MIN("Min"), VARIANCE("Variance"),
-            STRUCTURE_TENSOR_EIGENVALUES("Structure Tensor Eigenvalues");
+        BILATERAL("Bilateral"), DIFFERENCE_OF_GAUSSIAN("Difference of Gaussians"), GAUSSIAN_BLUR("Gaussian blur"),
+        GAUSSIAN_GRADIENT_MAGNITUDE("Gaussian Gradient Mangnitude"), HESSIAN("Hessian"), KUWAHARA("Kuwahra"),
+        LAPLACIAN_OF_GAUSSIAN("Laplacian of Gaussian"), MEMBRANE_PROJECTIONS("Membrane Projections"), MAX("Max"),
+        MEAN("Mean"), MEDIAN("Median"), MIN("Min"), VARIANCE("Variance"),
+        STRUCTURE_TENSOR_EIGENVALUES("Structure Tensor Eigenvalues");
 
         private final String name;
 
@@ -161,22 +161,53 @@ public class FeatureCalculator<T extends RealType<T>> {
         }
 
         //        ThreadService threadservice = KNIPGateway.threads();
+
         List<RandomAccessibleInterval<T>> stack = new ArrayList<>();
 
         for (Feature feature : m_selectedFeatures) {
             switch (feature) {
+                case BILATERAL:
+                    RandomAccessibleInterval<T> bilateral = KNIPGateway.ops().pixelfeature().bilateral(m_img);
+                    stack.add(bilateral);
+                    break;
+                case DIFFERENCE_OF_GAUSSIAN:
+                    break;
+                case GAUSSIAN_BLUR:
+                    break;
+                case GAUSSIAN_GRADIENT_MAGNITUDE:
+                    break;
+                case HESSIAN:
+                    break;
+                case KUWAHARA:
+                    RandomAccessibleInterval<T> kuwahara =
+                            KNIPGateway.ops().pixelfeature().kuwahara(m_img, (int)m_maxSigma);
+                    stack.add(kuwahara);
+                    break;
+                case LAPLACIAN_OF_GAUSSIAN:
+                    break;
+                case MAX:
+                    break;
                 case MEAN:
-                     ThreadService test = KNIPGateway.threads();
+                    ThreadService test = KNIPGateway.threads();
                     // FIXME nullpointer defaultchunker threadservice
                     // DefaultOpMatchingService.createModule -> DefaultModuleService.createModule -> getContext().inject
-//                    IterableInterval<T> out = (IterableInterval<T>)KNIPGateway.ops().create().img(m_img);
-//                    KNIPGateway.ops().filter().mean(out, m_img, new RectangleShape(3, false));
-                    RandomAccessibleInterval<T> temp =
-                        KNIPGateway.ops().pixelfeature().mean(m_img, 3);
-                    stack.add(temp);
+                    //                    IterableInterval<T> out = (IterableInterval<T>)KNIPGateway.ops().create().img(m_img);
+                    //                    KNIPGateway.ops().filter().mean(out, m_img, new RectangleShape(3, false));
+                                        RandomAccessibleInterval<T> temp = KNIPGateway.ops().pixelfeature().mean(m_img, 3);
+                                        stack.add(temp);
                     break;
-                default:
+                case MEDIAN:
                     break;
+                case MEMBRANE_PROJECTIONS:
+                    break;
+                case MIN:
+                    break;
+                case STRUCTURE_TENSOR_EIGENVALUES:
+                    break;
+                case VARIANCE:
+                    break;
+                //                default:
+                //                    break;
             }
         }
 
