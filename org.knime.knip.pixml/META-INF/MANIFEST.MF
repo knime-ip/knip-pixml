@@ -34,7 +34,8 @@ Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
  org.knime.knip.cellviewer;bundle-version="1.5.0",
  org.knime.knip.base,
  org.knime.knip.core,
- org.knime.workbench.repository
+ org.knime.workbench.repository,
+ jama;bundle-version="1.0.3"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.knime.knip.pixml.data.feat,
  org.knime.knip.pixml.node,

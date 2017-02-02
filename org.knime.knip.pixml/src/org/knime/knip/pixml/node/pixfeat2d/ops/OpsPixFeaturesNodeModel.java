@@ -107,9 +107,9 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
         return new SettingsModelInteger("max_sigma", 16);
     }
 
-//    final static SettingsModelBoolean createMultiThreadedModel() {
-//        return new SettingsModelBoolean("multi_threaded", true);
-//    }
+    //    final static SettingsModelBoolean createMultiThreadedModel() {
+    //        return new SettingsModelBoolean("multi_threaded", true);
+    //    }
 
     final static SettingsModelString createFeatDimLabelModel() {
         return new SettingsModelString("feature_dim_label", "F");
@@ -125,7 +125,7 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
 
     private SettingsModelInteger m_smMaxSigma = createMaxSigmaModel();
 
-//    private SettingsModelBoolean m_smMultiThreaded = createMultiThreadedModel();
+    //    private SettingsModelBoolean m_smMultiThreaded = createMultiThreadedModel();
 
     private SettingsModelString m_smFeatDimLabel = createFeatDimLabelModel();
 
@@ -144,7 +144,7 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
         settingsModels.add(m_smMembranePatchSize);
         settingsModels.add(m_smMinSigma);
         settingsModels.add(m_smMaxSigma);
-//        settingsModels.add(m_smMultiThreaded);
+        //        settingsModels.add(m_smMultiThreaded);
         settingsModels.add(m_smFeatDimLabel);
 
     }
@@ -185,23 +185,30 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
         opsFC.setSelectedFeatures(enabledFeatures);
         opsFC.setMembraneSize(m_smMembraneThickness.getIntValue());
         opsFC.setMembranePatchSize(m_smMembranePatchSize.getIntValue());
-//        opsFC.setMultithreaded(m_smMultiThreaded.getBooleanValue());
+        //        opsFC.setMultithreaded(m_smMultiThreaded.getBooleanValue());
         opsFC.setMinSigma(m_smMinSigma.getIntValue());
         opsFC.setMaxSigma(m_smMaxSigma.getIntValue());
 
         List<RandomAccessibleInterval<T>> stack = opsFC.compute();
 
-        long[] size = new long[] {img.dimension(0),img.dimension(1),0};
-        for(RandomAccessibleInterval<T> featureImg : stack) {
-            size[2] += featureImg.dimension(featureImg.numDimensions()-1);
+        long[] size = new long[]{img.dimension(0), img.dimension(1), 0};
+        for (RandomAccessibleInterval<T> featureImg : stack) {
+            if (featureImg.numDimensions() > 2) {
+                System.out.println("numDims" + featureImg.numDimensions() + "|"
+                        + featureImg.dimension(featureImg.numDimensions() - 1));
+                size[2] += featureImg.dimension(featureImg.numDimensions() - 1);
+            } else {
+                size[2] += 1;
+            }
         }
+
         Img<FloatType> result = new ArrayImgFactory<FloatType>().create(size, new FloatType());
         Cursor<FloatType> resultCursor = result.cursor();
         int counter = 0;
-        for(RandomAccessibleInterval<T> featureImg : stack) {
-            System.out.println("featureImg: "+counter);
+        for (RandomAccessibleInterval<T> featureImg : stack) {
+            System.out.println("featureImg: " + counter);
             Cursor<T> featureImgCursor = Views.iterable(featureImg).cursor();
-            while(featureImgCursor.hasNext() && resultCursor.hasNext()) {
+            while (featureImgCursor.hasNext() && resultCursor.hasNext()) {
                 featureImgCursor.next();
                 resultCursor.next();
                 resultCursor.get().set(featureImgCursor.get().getRealFloat());
@@ -216,7 +223,7 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
             metadata.setAxis(axes[i], i);
         }
 
-        return m_imgCellFactory.createCell(new ImgPlus<FloatType>( result, metadata));
+        return m_imgCellFactory.createCell(new ImgPlus<FloatType>(result, metadata));
     }
 
 }
