@@ -57,7 +57,6 @@ import java.util.concurrent.Future;
 
 import org.knime.knip.core.KNIPGateway;
 
-import Jama.Matrix;
 import net.imagej.ImgPlus;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
@@ -72,14 +71,12 @@ import net.imglib2.type.numeric.RealType;
  */
 public class FeatureCalculator<T extends RealType<T>> {
 
-    // TODO: Jama/Matrix ClassDefNotFound in MembraneProjections
-
     private static String[] s_availableFeatures = new String[]{Feature.BILATERAL.getText(),
             Feature.DIFFERENCE_OF_GAUSSIAN.getText(), Feature.ENTROPY.getText(), Feature.GAUSSIAN_BLUR.getText(),
-            /*Feature.GAUSSIAN_GRADIENT_MAGNITUDE.getText(),*/ Feature.HESSIAN.getText(), Feature.KUWAHARA.getText(),
-            Feature.LAPLACIAN_OF_GAUSSIAN.getText(), Feature.MEMBRANE_PROJECTIONS.getText(), Feature.MAX.getText(),
-            Feature.MEAN.getText(), Feature.MEDIAN.getText(), Feature.MIN.getText(), Feature.NEIGHBORS.getText(),
-            Feature.SOBEL.getText(), Feature.STRUCTURE_TENSOR_EIGENVALUES.getText(), Feature.VARIANCE.getText()};
+            Feature.HESSIAN.getText(), Feature.KUWAHARA.getText(), Feature.LAPLACIAN_OF_GAUSSIAN.getText(),
+            Feature.MEMBRANE_PROJECTIONS.getText(), Feature.MAX.getText(), Feature.MEAN.getText(),
+            Feature.MEDIAN.getText(), Feature.MIN.getText(), Feature.NEIGHBORS.getText(), Feature.SOBEL.getText(),
+            Feature.STRUCTURE_TENSOR_EIGENVALUES.getText(), Feature.VARIANCE.getText()};
 
     /**
      * Enum containing all available features. Each feature has a string containing the displayable name.
@@ -89,8 +86,7 @@ public class FeatureCalculator<T extends RealType<T>> {
     @SuppressWarnings("javadoc")
     public enum Feature {
         BILATERAL("Bilateral"), DIFFERENCE_OF_GAUSSIAN("Difference of Gaussians"), ENTROPY("Entropy"),
-        GAUSSIAN_BLUR("Gaussian blur"),
-        /*GAUSSIAN_GRADIENT_MAGNITUDE("Gaussian Gradient Mangnitude"),*/ HESSIAN("Hessian"), KUWAHARA("Kuwahra"),
+        GAUSSIAN_BLUR("Gaussian blur"), HESSIAN("Hessian"), KUWAHARA("Kuwahra"),
         LAPLACIAN_OF_GAUSSIAN("Laplacian of Gaussian"), MEMBRANE_PROJECTIONS("Membrane Projections"), MAX("Max"),
         MEAN("Mean"), MEDIAN("Median"), MIN("Min"), NEIGHBORS("Neighbors"), SOBEL("Sobel"),
         STRUCTURE_TENSOR_EIGENVALUES("Structure Tensor Eigenvalues"), VARIANCE("Variance");
@@ -138,8 +134,6 @@ public class FeatureCalculator<T extends RealType<T>> {
 
     private float m_maxSigma = 16.0f;
 
-    //    private boolean m_multithreaded = true;
-
     private ExecutorService m_executor;
 
     /**
@@ -166,18 +160,8 @@ public class FeatureCalculator<T extends RealType<T>> {
         List<RandomAccessibleInterval<T>> stack = new ArrayList<>();
 
         ArrayList<Future<RandomAccessibleInterval<T>>> futures = new ArrayList<>();
-//        Matrix test = new Matrix(new double[][]{});
-        double[][] rotationArray = new double[2][3];
-        rotationArray[0][0] = Math.cos(6);
-        rotationArray[0][1] = -Math.sin(6);
-        rotationArray[0][2] = 0;
-        rotationArray[1][0] = Math.sin(6);
-        rotationArray[1][1] = Math.cos(6);
-        rotationArray[1][2] = 0;
-        Matrix rotationMatrix = new Matrix(rotationArray);
 
-        // TODO check entropy, gaussian gradient, hessian, structure tensor
-        // TODO fix membrane projections
+        // TODO check entropy, sobel, hessian, structure tensor, membrane Projections
 
         try {
 
@@ -195,9 +179,6 @@ public class FeatureCalculator<T extends RealType<T>> {
                     case GAUSSIAN_BLUR:
                         futures.add(m_executor.submit(getGaussian()));
                         break;
-                    //                    case GAUSSIAN_GRADIENT_MAGNITUDE:
-                    //                        futures.add(m_executor.submit(getSobel()));
-                    //                        break;
                     case HESSIAN:
                         futures.add(m_executor.submit(getHessian()));
                         break;
@@ -232,8 +213,8 @@ public class FeatureCalculator<T extends RealType<T>> {
                         //                        RandomAccessibleInterval<T> manual = KNIPGateway.ops().pixelfeature().manualSobelFilter(m_img);
                         //                        ArrayImg<DoubleType, DoubleArray> test = KNIPGateway.ops().math().multiply((ArrayImg<DoubleType, DoubleArray>)manual, 0.125d);
                         RandomAccessibleInterval<T> separated = KNIPGateway.ops().filter().sobel(m_img);
-//                        RandomAccessibleInterval<T> sobelFeature =
-//                                KNIPGateway.ops().pixelfeature().sobel(m_img, m_minSigma, m_maxSigma);
+                        //                        RandomAccessibleInterval<T> sobelFeature =
+                        //                                KNIPGateway.ops().pixelfeature().sobel(m_img, m_minSigma, m_maxSigma);
                         RandomAccessibleInterval<T> sobelFeature = KNIPGateway.ops().pixelfeature().manualSobel(m_img);
                         stack.add(separated);
                         stack.add(sobelFeature);
@@ -274,7 +255,6 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().bilateral(m_img);
-                //                return null;
             }
         };
     }
@@ -289,7 +269,6 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().doG(m_img, m_minSigma, m_maxSigma);
-                //                return null;
             }
         };
     }
@@ -318,25 +297,9 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().gaussian(m_img, m_minSigma, m_maxSigma);
-                //                return null;
             }
         };
     }
-
-    // -- Gaussian Gradient Magnitude--
-    //    private Callable<RandomAccessibleInterval<T>> getSobel() {
-    //        if (Thread.currentThread().isInterrupted()) {
-    //            return null;
-    //        }
-    //        return new Callable<RandomAccessibleInterval<T>>() {
-    //
-    //            @Override
-    //            public RandomAccessibleInterval<T> call() throws Exception {
-    //                return KNIPGateway.ops().pixelfeature().sobel(m_img, m_minSigma, m_maxSigma);
-    //                //                return null;
-    //            }
-    //        };
-    //    }
 
     // -- Hessian --
     private Callable<RandomAccessibleInterval<T>> getHessian() {
@@ -348,7 +311,6 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().hessian(m_img, m_minSigma, m_maxSigma);
-                //                return null;
             }
         };
     }
@@ -363,7 +325,6 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().kuwahara(m_img, (int)m_maxSigma);
-                //                return null;
             }
         };
     }
@@ -378,7 +339,6 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().loG(m_img, m_minSigma, m_maxSigma);
-                //                return null;
             }
         };
     }
@@ -407,7 +367,6 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().mean(m_img, (int)m_maxSigma);
-                //                return null;
             }
         };
     }
@@ -422,7 +381,6 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().median(m_img, (int)m_maxSigma);
-                //                return null;
             }
         };
     }
@@ -437,7 +395,6 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().membraneProjections(m_img, m_membraneSize, m_membranePatchSize);
-                //                return null;
             }
         };
     }
@@ -452,7 +409,6 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().min(m_img, (int)m_maxSigma);
-                //                return null;
             }
         };
     }
@@ -467,7 +423,6 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().neighbors(m_img, (int)m_minSigma, (int)m_maxSigma);
-                //                return null;
             }
         };
     }
@@ -482,7 +437,6 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().sobel(m_img, m_minSigma, m_maxSigma);
-                //                return null;
             }
         };
     }
@@ -497,7 +451,7 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().structureTensor(m_img, m_minSigma, m_maxSigma);
-                //                return null;
+
             }
         };
     }
@@ -512,7 +466,6 @@ public class FeatureCalculator<T extends RealType<T>> {
             @Override
             public RandomAccessibleInterval<T> call() throws Exception {
                 return KNIPGateway.ops().pixelfeature().variance(m_img, (int)m_maxSigma);
-                //                return null;
             }
         };
     }
@@ -610,17 +563,4 @@ public class FeatureCalculator<T extends RealType<T>> {
         return m_maxSigma;
     }
 
-    //    /**
-    //     * @return true if multithread is set to enabled, false otherwise
-    //     */
-    //    public boolean isMultithread() {
-    //        return m_multithreaded;
-    //    }
-    //
-    //    /**
-    //     * @param multithread true if calculations should be performed multithreaded, false otherwise
-    //     */
-    //    public void setMultithreaded(final boolean multithread) {
-    //        this.m_multithreaded = multithread;
-    //    }
 }
