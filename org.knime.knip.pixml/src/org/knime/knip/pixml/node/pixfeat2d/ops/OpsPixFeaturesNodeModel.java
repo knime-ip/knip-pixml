@@ -59,7 +59,7 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeModel;
-import org.knime.knip.pixml.node.pixfeat2d.ops.FeatureCalculator.Feature;
+import org.knime.knip.pixml.node.pixfeat2d.ops.OpsFeatureCalculator.Feature;
 
 import net.imagej.ImgPlus;
 import net.imagej.ImgPlusMetadata;
@@ -86,7 +86,7 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
         // default selection
         String[] def = new String[5];
         for (int i = 0; i < def.length; i++) {
-            def[i] = FeatureCalculator.getAvailableFeature(i);
+            def[i] = OpsFeatureCalculator.getAvailableFeature(i);
         }
         return new SettingsModelStringArray("feature_list", def);
     }
@@ -107,10 +107,6 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
         return new SettingsModelInteger("max_sigma", 16);
     }
 
-    //    final static SettingsModelBoolean createMultiThreadedModel() {
-    //        return new SettingsModelBoolean("multi_threaded", true);
-    //    }
-
     final static SettingsModelString createFeatDimLabelModel() {
         return new SettingsModelString("feature_dim_label", "F");
     }
@@ -125,11 +121,8 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
 
     private SettingsModelInteger m_smMaxSigma = createMaxSigmaModel();
 
-    //    private SettingsModelBoolean m_smMultiThreaded = createMultiThreadedModel();
-
     private SettingsModelString m_smFeatDimLabel = createFeatDimLabelModel();
 
-    //    private boolean[] m_enabledFeatures;
     private Feature[] enabledFeatures;
 
     private ImgPlusCellFactory m_imgCellFactory;
@@ -144,7 +137,6 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
         settingsModels.add(m_smMembranePatchSize);
         settingsModels.add(m_smMinSigma);
         settingsModels.add(m_smMaxSigma);
-        //        settingsModels.add(m_smMultiThreaded);
         settingsModels.add(m_smFeatDimLabel);
 
     }
@@ -154,12 +146,10 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
      */
     @Override
     protected void prepareExecute(final ExecutionContext exec) {
-        //        m_enabledFeatures = new boolean[FeatureCalculator.getAvailableFeatures().length];
         String[] selected = m_smFeatureList.getStringArrayValue();
         enabledFeatures = new Feature[selected.length];
 
         for (int i = 0; i < selected.length; i++) {
-            //            enabledFeatures[i] = Feature.valueOf(selected[i]);
             enabledFeatures[i] = Feature.fromString(selected[i]);
         }
 
@@ -174,28 +164,25 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
     protected ImgPlusCell<FloatType> compute(final ImgPlusValue<T> cellValue) throws Exception {
         ImgPlus<T> img = cellValue.getImgPlus();
 
-        // create feature stack
         if (img.numDimensions() > 2) {
             throw new IllegalArgumentException("Only 2D images supported, yet!");
         }
 
-        FeatureCalculator<T> opsFC = new FeatureCalculator<T>(img, getExecutorService());
+        OpsFeatureCalculator<T> opsFC = new OpsFeatureCalculator<T>(img, getExecutorService());
 
         // set parameters
         opsFC.setSelectedFeatures(enabledFeatures);
         opsFC.setMembraneSize(m_smMembraneThickness.getIntValue());
         opsFC.setMembranePatchSize(m_smMembranePatchSize.getIntValue());
-        //        opsFC.setMultithreaded(m_smMultiThreaded.getBooleanValue());
         opsFC.setMinSigma(m_smMinSigma.getIntValue());
         opsFC.setMaxSigma(m_smMaxSigma.getIntValue());
 
         List<RandomAccessibleInterval<T>> stack = opsFC.compute();
 
+        // calculate size of output image
         long[] size = new long[]{img.dimension(0), img.dimension(1), 0};
         for (RandomAccessibleInterval<T> featureImg : stack) {
             if (featureImg.numDimensions() > 2) {
-                System.out.println("numDims" + featureImg.numDimensions() + "|"
-                        + featureImg.dimension(featureImg.numDimensions() - 1));
                 size[2] += featureImg.dimension(featureImg.numDimensions() - 1);
             } else {
                 size[2] += 1;
@@ -203,17 +190,16 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
         }
 
         Img<FloatType> result = new ArrayImgFactory<FloatType>().create(size, new FloatType());
+
+        // copy values from stack to output image
         Cursor<FloatType> resultCursor = result.cursor();
-        int counter = 0;
         for (RandomAccessibleInterval<T> featureImg : stack) {
-            System.out.println("featureImg: " + counter);
             Cursor<T> featureImgCursor = Views.iterable(featureImg).cursor();
             while (featureImgCursor.hasNext() && resultCursor.hasNext()) {
-                featureImgCursor.next();
-                resultCursor.next();
+                featureImgCursor.fwd();
+                resultCursor.fwd();
                 resultCursor.get().set(featureImgCursor.get().getRealFloat());
             }
-            counter++;
         }
 
         CalibratedAxis[] axes = new CalibratedAxis[]{new DefaultLinearAxis(Axes.X), new DefaultLinearAxis(Axes.Y),

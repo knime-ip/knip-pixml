@@ -69,7 +69,7 @@ import net.imglib2.type.numeric.RealType;
  * @author Eike Heinz, University of Konstanz
  * @param <T> type
  */
-public class FeatureCalculator<T extends RealType<T>> {
+public class OpsFeatureCalculator<T extends RealType<T>> {
 
     private static String[] s_availableFeatures = new String[]{Feature.BILATERAL.getText(),
             Feature.DIFFERENCE_OF_GAUSSIAN.getText(), Feature.ENTROPY.getText(), Feature.GAUSSIAN_BLUR.getText(),
@@ -142,7 +142,7 @@ public class FeatureCalculator<T extends RealType<T>> {
      * @param input image of which features are calculated
      * @param exec {@link ExecutorService} that is reseted on canceling the node
      */
-    public FeatureCalculator(final ImgPlus<T> input, final ExecutorService exec) {
+    public OpsFeatureCalculator(final ImgPlus<T> input, final ExecutorService exec) {
         m_img = input;
         m_executor = exec;
     }
@@ -216,8 +216,10 @@ public class FeatureCalculator<T extends RealType<T>> {
                         //                        RandomAccessibleInterval<T> sobelFeature =
                         //                                KNIPGateway.ops().pixelfeature().sobel(m_img, m_minSigma, m_maxSigma);
                         RandomAccessibleInterval<T> sobelFeature = KNIPGateway.ops().pixelfeature().manualSobel(m_img);
+//                        stack.add(getTestSobel());
                         stack.add(separated);
                         stack.add(sobelFeature);
+//                        stack.add(derivative);
                         //                        stack.add((RandomAccessibleInterval<T>)test);
                         //                        futures.add(m_executor.submit(getSobel()));
                         break;
@@ -244,6 +246,7 @@ public class FeatureCalculator<T extends RealType<T>> {
         }
         return stack;
     }
+
 
     // -- Bilateral --
     private Callable<RandomAccessibleInterval<T>> getBilateral() {

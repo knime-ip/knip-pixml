@@ -69,7 +69,7 @@ public class OpsPixFeaturesNodeDialog<T extends RealType<T>> extends ValueToCell
     public void addDialogComponents() {
         addDialogComponent("Options", "Features",
                            new DialogComponentStringListSelection(OpsPixFeaturesNodeModel.createFeatureListModel(),
-                                   "Features", FeatureCalculator.getAvailableFeatures()));
+                                   "Features", OpsFeatureCalculator.getAvailableFeatures()));
 
         addDialogComponent("Options", "Features", new DialogComponentNumber(
                 OpsPixFeaturesNodeModel.createMembraneThicknessModel(), "Membrane thickness", 1));
