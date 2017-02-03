@@ -1,7 +1,9 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by
+ *  University of Konstanz, Germany and
+ *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -43,8 +45,6 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * History
- *   12.12.2016 (eike): created
  */
 package org.knime.knip.pixml.node.pixfeat2d.ops;
 
@@ -58,7 +58,8 @@ import net.imglib2.type.numeric.RealType;
 
 /**
  *
- * @author eike
+ * @author Eike Heinz, University of Konstanz
+ * @param <T> type
  */
 public class OpsPixFeaturesNodeDialog<T extends RealType<T>> extends ValueToCellNodeDialog<ImgPlusValue<T>> {
 
@@ -79,9 +80,6 @@ public class OpsPixFeaturesNodeDialog<T extends RealType<T>> extends ValueToCell
                 OpsPixFeaturesNodeModel.createMinSigmaModel(), "Minimum sigma", 1));
         addDialogComponent("Options", "Features", new DialogComponentNumber(
                 OpsPixFeaturesNodeModel.createMaxSigmaModel(), "Maximum sigma", 1));
-
-//        addDialogComponent("Options", "Misc", new DialogComponentBoolean(
-//                OpsPixFeaturesNodeModel.createMultiThreadedModel(), "Multi-threaded"));
         addDialogComponent("Options", "Misc", new DialogComponentString(
                 OpsPixFeaturesNodeModel.createFeatDimLabelModel(), "Feature dimension label"));
 

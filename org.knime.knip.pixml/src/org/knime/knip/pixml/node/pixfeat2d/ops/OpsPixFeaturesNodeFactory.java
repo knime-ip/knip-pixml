@@ -1,7 +1,9 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by
+ *  University of Konstanz, Germany and
+ *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -43,8 +45,6 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * History
- *   12.12.2016 (eike): created
  */
 package org.knime.knip.pixml.node.pixfeat2d.ops;
 
@@ -58,9 +58,10 @@ import net.imglib2.type.numeric.RealType;
 
 /**
  *
- * @author eike
+ * @author Eike Heinz, University of Konstanz
+ * @param <T> type
  */
-public class OpsPixFeaturesNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>>{
+public class OpsPixFeaturesNodeFactory<T extends RealType<T>> extends ValueToCellNodeFactory<ImgPlusValue<T>> {
 
     /**
      * {@inheritDoc}

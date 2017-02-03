@@ -1,7 +1,9 @@
 /*
  * ------------------------------------------------------------------------
  *
- *  Copyright by KNIME GmbH, Konstanz, Germany
+ *  Copyright by
+ *  University of Konstanz, Germany and
+ *  KNIME GmbH, Konstanz, Germany
  *  Website: http://www.knime.org; Email: contact@knime.org
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -43,8 +45,6 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
- * History
- *   27.12.2016 (eike): created
  */
 package org.knime.knip.pixml.node.pixfeat2d.ops;
 
@@ -105,7 +105,7 @@ public class OpsFeatureCalculator<T extends RealType<T>> {
         }
 
         /**
-         * Converts a name string into the correct feature.
+         * Converts a name string into the correct feature, if defined, else throws {@link IllegalArgumentException}.
          *
          * @param text of feature
          * @return corresponding feature enum
@@ -118,7 +118,7 @@ public class OpsFeatureCalculator<T extends RealType<T>> {
                     }
                 }
             }
-            throw new IllegalArgumentException("no feature with this name");
+            throw new IllegalArgumentException("No feature defined with this name: " + text);
         }
     }
 
@@ -137,7 +137,7 @@ public class OpsFeatureCalculator<T extends RealType<T>> {
     private ExecutorService m_executor;
 
     /**
-     * constructor
+     * Constructor.
      *
      * @param input image of which features are calculated
      * @param exec {@link ExecutorService} that is reseted on canceling the node
@@ -150,7 +150,7 @@ public class OpsFeatureCalculator<T extends RealType<T>> {
     /**
      * Calculates all selected features on a given image.
      *
-     * @return stack of features
+     * @return stack of feature images
      */
     public List<RandomAccessibleInterval<T>> compute() {
         if (Thread.currentThread().isInterrupted()) {
@@ -159,7 +159,7 @@ public class OpsFeatureCalculator<T extends RealType<T>> {
 
         List<RandomAccessibleInterval<T>> stack = new ArrayList<>();
 
-        ArrayList<Future<RandomAccessibleInterval<T>>> futures = new ArrayList<>();
+        List<Future<RandomAccessibleInterval<T>>> futures = new ArrayList<>();
 
         // TODO check entropy, sobel, hessian, structure tensor, membrane Projections
 
@@ -198,10 +198,7 @@ public class OpsFeatureCalculator<T extends RealType<T>> {
                         futures.add(m_executor.submit(getMedian()));
                         break;
                     case MEMBRANE_PROJECTIONS:
-                        RandomAccessibleInterval<T> membrane = KNIPGateway.ops().pixelfeature()
-                                .membraneProjections(m_img, m_membraneSize, m_membranePatchSize);
-                        stack.add(membrane);
-                        //                        futures.add(m_executor.submit(getMembraneProjections()));
+                        futures.add(m_executor.submit(getMembraneProjections()));
                         break;
                     case MIN:
                         futures.add(m_executor.submit(getMin()));
@@ -216,10 +213,10 @@ public class OpsFeatureCalculator<T extends RealType<T>> {
                         //                        RandomAccessibleInterval<T> sobelFeature =
                         //                                KNIPGateway.ops().pixelfeature().sobel(m_img, m_minSigma, m_maxSigma);
                         RandomAccessibleInterval<T> sobelFeature = KNIPGateway.ops().pixelfeature().manualSobel(m_img);
-//                        stack.add(getTestSobel());
+                        //                        stack.add(getTestSobel());
                         stack.add(separated);
                         stack.add(sobelFeature);
-//                        stack.add(derivative);
+                        //                        stack.add(derivative);
                         //                        stack.add((RandomAccessibleInterval<T>)test);
                         //                        futures.add(m_executor.submit(getSobel()));
                         break;
@@ -246,7 +243,6 @@ public class OpsFeatureCalculator<T extends RealType<T>> {
         }
         return stack;
     }
-
 
     // -- Bilateral --
     private Callable<RandomAccessibleInterval<T>> getBilateral() {
