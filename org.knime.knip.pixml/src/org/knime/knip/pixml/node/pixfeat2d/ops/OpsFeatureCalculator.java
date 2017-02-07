@@ -209,16 +209,16 @@ public class OpsFeatureCalculator<T extends RealType<T>> {
                     case SOBEL:
                         //                        RandomAccessibleInterval<T> manual = KNIPGateway.ops().pixelfeature().manualSobelFilter(m_img);
                         //                        ArrayImg<DoubleType, DoubleArray> test = KNIPGateway.ops().math().multiply((ArrayImg<DoubleType, DoubleArray>)manual, 0.125d);
-                        RandomAccessibleInterval<T> separated = KNIPGateway.ops().filter().sobel(m_img);
+                        //                        RandomAccessibleInterval<T> separated = KNIPGateway.ops().filter().sobel(m_img);
                         //                        RandomAccessibleInterval<T> sobelFeature =
                         //                                KNIPGateway.ops().pixelfeature().sobel(m_img, m_minSigma, m_maxSigma);
-                        RandomAccessibleInterval<T> sobelFeature = KNIPGateway.ops().pixelfeature().manualSobel(m_img);
+                        //                        RandomAccessibleInterval<T> sobelFeature = KNIPGateway.ops().pixelfeature().manualSobel(m_img);
                         //                        stack.add(getTestSobel());
-                        stack.add(separated);
-                        stack.add(sobelFeature);
+                        //                        stack.add(separated);
+                        //                        stack.add(sobelFeature);
                         //                        stack.add(derivative);
                         //                        stack.add((RandomAccessibleInterval<T>)test);
-                        //                        futures.add(m_executor.submit(getSobel()));
+                        futures.add(m_executor.submit(getSobel()));
                         break;
                     case STRUCTURE_TENSOR_EIGENVALUES:
                         futures.add(m_executor.submit(getStructureTensorEigenvalues()));
