@@ -86,7 +86,7 @@ public class OpsFeatureCalculator<T extends RealType<T>> {
     @SuppressWarnings("javadoc")
     public enum Feature {
         BILATERAL("Bilateral"), DIFFERENCE_OF_GAUSSIAN("Difference of Gaussians"), ENTROPY("Entropy"),
-        GAUSSIAN_BLUR("Gaussian blur"), HESSIAN("Hessian"), KUWAHARA("Kuwahra"),
+        GAUSSIAN_BLUR("Gaussian blur"), HESSIAN("Hessian"), KUWAHARA("Kuwahara"),
         LAPLACIAN_OF_GAUSSIAN("Laplacian of Gaussian"), MEMBRANE_PROJECTIONS("Membrane Projections"), MAX("Max"),
         MEAN("Mean"), MEDIAN("Median"), MIN("Min"), NEIGHBORS("Neighbors"), SOBEL("Sobel"),
         STRUCTURE_TENSOR_EIGENVALUES("Structure Tensor Eigenvalues"), VARIANCE("Variance");
@@ -186,7 +186,11 @@ public class OpsFeatureCalculator<T extends RealType<T>> {
                         futures.add(m_executor.submit(getKuwahara()));
                         break;
                     case LAPLACIAN_OF_GAUSSIAN:
-                        futures.add(m_executor.submit(getLoG()));
+                        RandomAccessibleInterval<T> kernel = (RandomAccessibleInterval<T>)KNIPGateway.ops().create()
+                                .kernelLog(m_minSigma, m_img.numDimensions());
+                        RandomAccessibleInterval<T> test = KNIPGateway.ops().filter().convolve(m_img, kernel);
+                        stack.add(test);
+                        //                        futures.add(m_executor.submit(getLoG()));
                         break;
                     case MAX:
                         futures.add(m_executor.submit(getMax()));
@@ -207,18 +211,19 @@ public class OpsFeatureCalculator<T extends RealType<T>> {
                         futures.add(m_executor.submit(getNeighbors()));
                         break;
                     case SOBEL:
-                        //                        RandomAccessibleInterval<T> manual = KNIPGateway.ops().pixelfeature().manualSobelFilter(m_img);
+                        //                                                RandomAccessibleInterval<T> manual = KNIPGateway.ops().pixelfeature().manualSobelFilter(m_img);
                         //                        ArrayImg<DoubleType, DoubleArray> test = KNIPGateway.ops().math().multiply((ArrayImg<DoubleType, DoubleArray>)manual, 0.125d);
                         //                        RandomAccessibleInterval<T> separated = KNIPGateway.ops().filter().sobel(m_img);
                         //                        RandomAccessibleInterval<T> sobelFeature =
                         //                                KNIPGateway.ops().pixelfeature().sobel(m_img, m_minSigma, m_maxSigma);
-                        //                        RandomAccessibleInterval<T> sobelFeature = KNIPGateway.ops().pixelfeature().manualSobel(m_img);
+//                        RandomAccessibleInterval<T> sobelFeature = KNIPGateway.ops().pixelfeature().manualSobel(m_img);
                         //                        stack.add(getTestSobel());
-                        //                        stack.add(separated);
-                        //                        stack.add(sobelFeature);
+                        //                                                stack.add(separated);
+//                        stack.add(sobelFeature);
                         //                        stack.add(derivative);
                         //                        stack.add((RandomAccessibleInterval<T>)test);
                         futures.add(m_executor.submit(getSobel()));
+                        //                        stack.add(KNIPGateway.ops().filter().naivePartialDerivative(m_img, 0));
                         break;
                     case STRUCTURE_TENSOR_EIGENVALUES:
                         futures.add(m_executor.submit(getStructureTensorEigenvalues()));
