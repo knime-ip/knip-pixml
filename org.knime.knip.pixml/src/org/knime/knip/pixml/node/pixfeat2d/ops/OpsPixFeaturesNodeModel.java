@@ -59,6 +59,7 @@ import org.knime.knip.base.data.img.ImgPlusCell;
 import org.knime.knip.base.data.img.ImgPlusCellFactory;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeModel;
+import org.knime.knip.core.KNIPGateway;
 import org.knime.knip.pixml.node.pixfeat2d.ops.OpsFeatureCalculator.Feature;
 
 import net.imagej.ImgPlus;
@@ -168,7 +169,9 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
             throw new IllegalArgumentException("Only 2D images supported, yet!");
         }
 
-        OpsFeatureCalculator<T> opsFC = new OpsFeatureCalculator<T>(img, getExecutorService());
+        Img<FloatType> imgFloat = KNIPGateway.ops().convert().float32(img);
+
+        OpsFeatureCalculator opsFC = new OpsFeatureCalculator(imgFloat, getExecutorService());
 
         // set parameters
         opsFC.setSelectedFeatures(enabledFeatures);
@@ -177,11 +180,11 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
         opsFC.setMinSigma(m_smMinSigma.getIntValue());
         opsFC.setMaxSigma(m_smMaxSigma.getIntValue());
 
-        List<RandomAccessibleInterval<T>> stack = opsFC.compute();
+        List<RandomAccessibleInterval<FloatType>> stack = opsFC.compute();
 
         // calculate size of output image
         long[] size = new long[]{img.dimension(0), img.dimension(1), 0};
-        for (RandomAccessibleInterval<T> featureImg : stack) {
+        for (RandomAccessibleInterval<FloatType> featureImg : stack) {
             if (featureImg.numDimensions() > 2) {
                 size[2] += featureImg.dimension(featureImg.numDimensions() - 1);
             } else {
@@ -193,8 +196,8 @@ public class OpsPixFeaturesNodeModel<T extends RealType<T>>
 
         // copy values from stack to output image
         Cursor<FloatType> resultCursor = result.cursor();
-        for (RandomAccessibleInterval<T> featureImg : stack) {
-            Cursor<T> featureImgCursor = Views.iterable(featureImg).cursor();
+        for (RandomAccessibleInterval<FloatType> featureImg : stack) {
+            Cursor<FloatType> featureImgCursor = Views.iterable(featureImg).cursor();
             while (featureImgCursor.hasNext() && resultCursor.hasNext()) {
                 featureImgCursor.fwd();
                 resultCursor.fwd();
