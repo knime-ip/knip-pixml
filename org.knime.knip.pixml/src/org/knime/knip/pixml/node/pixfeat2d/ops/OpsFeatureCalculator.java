@@ -69,14 +69,14 @@ import net.imglib2.type.numeric.real.FloatType;
  */
 public class OpsFeatureCalculator {
 
-    private static String[] s_availableFeatures = new String[]{Feature.BILATERAL.getText(),
-            Feature.DIFFERENCE_OF_GAUSSIAN.getText(), Feature.ENTROPY.getText(), Feature.GAUSSIAN_BLUR.getText(),
-            Feature.HESSIAN.getText(), Feature.KUWAHARA.getText(), Feature.LAPLACIAN_OF_GAUSSIAN.getText(),
-            Feature.MEMBRANE_PROJECTIONS.getText(), Feature.MAX.getText(), Feature.MEAN.getText(),
-            Feature.MEDIAN.getText(), Feature.MIN.getText(), Feature.NEIGHBORS.getText(), Feature.SOBEL.getText(),
-            Feature.STRUCTURE_TENSOR_EIGENVALUES.getText(), Feature.VARIANCE.getText()};
+//    private static String[] s_availableFeatures = new String[]{Feature.BILATERAL.getText(),
+//            Feature.DIFFERENCE_OF_GAUSSIAN.getText(), Feature.ENTROPY.getText(), Feature.GAUSSIAN_BLUR.getText(),
+//            Feature.HESSIAN.getText(), Feature.KUWAHARA.getText(), Feature.LAPLACIAN_OF_GAUSSIAN.getText(),
+//            Feature.MEMBRANE_PROJECTIONS.getText(), Feature.MAX.getText(), Feature.MEAN.getText(),
+//            Feature.MEDIAN.getText(), Feature.MIN.getText(), Feature.NEIGHBORS.getText(), Feature.SOBEL.getText(),
+//            Feature.STRUCTURE_TENSOR_EIGENVALUES.getText(), Feature.VARIANCE.getText()};
 
-    private static String[] s_fijiOrderedFeatures = new String[]{Feature.GAUSSIAN_BLUR.getText(), Feature.SOBEL.getText(),
+    private static String[] s_availableFeatures = new String[]{Feature.GAUSSIAN_BLUR.getText(), Feature.SOBEL.getText(),
             Feature.HESSIAN.getText(), Feature.DIFFERENCE_OF_GAUSSIAN.getText(), Feature.MEMBRANE_PROJECTIONS.getText(),
             Feature.VARIANCE.getText(), Feature.MEAN.getText(), Feature.MIN.getText(), Feature.MAX.getText(),
             Feature.MEDIAN.getText(), Feature.BILATERAL.getText(), Feature.KUWAHARA.getText(),
